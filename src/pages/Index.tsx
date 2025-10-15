@@ -270,7 +270,7 @@ const Index = () => {
       )}
 
       {/* Glassmorphism Header */}
-      <div className={`sticky top-0 z-30 mb-6 ${darkMode ? 'bg-gray-900/20' : 'bg-white/20'} backdrop-blur-[2px] border-b ${darkMode ? 'border-gray-700/30' : 'border-gray-200/30'} shadow-lg`}>
+      <div className={`sticky top-0 z-30 mb-6 ${darkMode ? 'bg-gray-900/15' : 'bg-white/15'} backdrop-blur-[1px] border-b ${darkMode ? 'border-gray-700/20' : 'border-gray-200/20'} shadow-lg`}>
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-4">
           <div className="flex justify-between items-center">
             <h1 className={`text-2xl sm:text-3xl md:text-4xl font-bold ${textColor} tracking-tight`}>
@@ -316,7 +316,7 @@ const Index = () => {
                   <span className="text-xl sm:text-2xl md:text-3xl">📝</span>
                   <h2 className={`text-lg sm:text-xl md:text-2xl font-bold ${textColor}`}>Notes</h2>
                 </div>
-                <div className="flex gap-2 sm:gap-3 -ml-[3%]">
+                <div className="flex gap-2 sm:gap-3 -ml-[2.4%]">
                   <SavingsButton onClick={() => setShowCalculator(true)} variant="secondary" size="default" className="text-sm sm:text-base w-auto whitespace-nowrap">
                     📊 Calculator
                   </SavingsButton>
