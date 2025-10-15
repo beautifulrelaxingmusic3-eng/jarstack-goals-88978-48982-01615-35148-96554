@@ -270,7 +270,7 @@ const Index = () => {
       )}
 
       {/* Glassmorphism Header */}
-      <div className={`sticky top-0 z-30 mb-6 ${darkMode ? 'bg-gray-900/70' : 'bg-white/70'} backdrop-blur-md border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'} shadow-lg`}>
+      <div className={`sticky top-0 z-30 mb-6 ${darkMode ? 'bg-gray-900/30' : 'bg-white/30'} backdrop-blur-sm border-b ${darkMode ? 'border-gray-700/40' : 'border-gray-200/40'} shadow-lg`}>
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-4">
           <div className="flex justify-between items-center">
             <h1 className={`text-2xl sm:text-3xl md:text-4xl font-bold ${textColor} tracking-tight`}>
@@ -316,11 +316,11 @@ const Index = () => {
                   <span className="text-xl sm:text-2xl md:text-3xl">📝</span>
                   <h2 className={`text-lg sm:text-xl md:text-2xl font-bold ${textColor}`}>Notes</h2>
                 </div>
-                <div className="flex gap-2 sm:gap-3">
-                  <SavingsButton onClick={() => setShowCalculator(true)} variant="secondary" size="default" className="text-sm sm:text-base w-auto whitespace-nowrap -ml-[1%]">
+                <div className="flex gap-2 sm:gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                  <SavingsButton onClick={() => setShowCalculator(true)} variant="secondary" size="default" className="text-sm sm:text-base w-auto whitespace-nowrap flex-1 sm:flex-none">
                     📊 Calculator
                   </SavingsButton>
-                  <SavingsButton onClick={() => setShowNoteModal(true)} size="default" className="text-sm sm:text-base w-auto whitespace-nowrap">
+                  <SavingsButton onClick={() => setShowNoteModal(true)} size="default" className="text-sm sm:text-base w-auto whitespace-nowrap flex-1 sm:flex-none">
                     Add Note
                   </SavingsButton>
                 </div>
@@ -352,8 +352,8 @@ const Index = () => {
             <div className={`${cardBg} rounded-3xl p-3 sm:p-4 md:p-6 shadow-lg`}>
               <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 justify-between">
                 <div className="flex items-center gap-2 sm:gap-3">
-                  <span className="text-xl sm:text-2xl md:text-3xl">💰</span>
-                  <h2 className={`text-lg sm:text-xl md:text-2xl font-bold ${textColor}`}>Your Savings Jars</h2>
+                  <TrendingUp className="text-green-600" size={24} />
+                  <h2 className={`text-lg sm:text-xl md:text-2xl font-bold ${textColor}`}>Savings</h2>
                 </div>
                 <SavingsButton onClick={() => setShowCategoryModal(true)} variant="secondary" size="default" className="text-xs sm:text-sm whitespace-nowrap">
                   Create Category
