@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { Plus, Target, TrendingUp, Moon, Sun, Trash2, FileText } from 'lucide-react';
+import { Plus, Target, TrendingUp, Moon, Sun, Trash2 } from 'lucide-react';
 import SavingsButton from '@/components/SavingsButton';
 import JarVisualization from '@/components/JarVisualization';
 import SavingsChart from '@/components/SavingsChart';
 import EmotionalInsights from '@/components/EmotionalInsights';
-import { exportFullReport, exportJarReport } from '@/lib/pdfExport';
 
 interface Jar {
   id: number;
@@ -103,7 +102,7 @@ const Index = () => {
       const category: Category = {
         id: Date.now(),
         name: newCategory.name,
-        icon: '💰'
+        icon: ''
       };
       setCategories([...categories, category]);
       setNewCategory({ name: '', icon: '' });
@@ -270,29 +269,24 @@ const Index = () => {
         </div>
       )}
 
-      <div className="max-w-[1400px] mx-auto p-4 sm:p-6 pb-20">
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4 mb-6 sm:mb-8 pt-3 sm:pt-4">
-          <h1 className={`text-xl sm:text-2xl md:text-3xl font-bold ${textColor}`}>Financial Freedom Lab</h1>
-          <div className="flex items-center gap-2 sm:gap-3">
-            {jars.length > 0 && (
-              <SavingsButton 
-                onClick={() => exportFullReport(jars)} 
-                variant="secondary" 
-                size="sm"
-                className="text-sm whitespace-nowrap"
-              >
-                <FileText size={16} className="inline mr-1" />
-                Export Report
-              </SavingsButton>
-            )}
+      {/* Glassmorphism Header */}
+      <div className={`sticky top-0 z-30 mb-6 ${darkMode ? 'bg-gray-900/70' : 'bg-white/70'} backdrop-blur-md border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'} shadow-lg`}>
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-4">
+          <div className="flex justify-between items-center">
+            <h1 className={`text-2xl sm:text-3xl md:text-4xl font-bold ${textColor} tracking-tight`}>
+              Jarify
+            </h1>
             <button
               onClick={() => setDarkMode(!darkMode)}
-              className={`p-2 sm:p-3 rounded-full ${cardBg} shadow-lg hover:shadow-xl transition-all`}
+              className={`p-2 sm:p-3 rounded-full ${darkMode ? 'bg-gray-800/80' : 'bg-white/80'} backdrop-blur-sm shadow-lg hover:shadow-xl transition-all border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}
             >
-              {darkMode ? <Sun className="text-yellow-400" size={18} /> : <Moon className="text-indigo-600" size={18} />}
+              {darkMode ? <Sun className="text-yellow-400" size={20} /> : <Moon className="text-indigo-600" size={20} />}
             </button>
           </div>
         </div>
+      </div>
+
+      <div className="max-w-[1400px] mx-auto p-4 sm:p-6 pb-20">
 
         {!selectedJar ? (
           <>
@@ -379,7 +373,6 @@ const Index = () => {
                       {/* Category Header */}
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
-                          <span className="text-2xl sm:text-3xl">{category.icon}</span>
                           <div>
                             <h3 className={`text-lg sm:text-xl font-bold ${textColor}`}>{category.name}</h3>
                             <p className={`text-xs sm:text-sm ${textSecondary}`}>
@@ -388,7 +381,7 @@ const Index = () => {
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className={`text-base sm:text-lg font-bold ${textColor}`}>
+                          <p className={`text-base sm:text-lg font-bold text-green-600`}>
                             {categoryJars.length > 0 ? categoryJars[0].currency : '$'}{categoryTotal.toLocaleString()}
                           </p>
                           <p className={`text-xs ${textSecondary}`}>
@@ -439,12 +432,12 @@ const Index = () => {
                                   {progress}%
                                 </div>
                               </div>
-                              <div className={`flex justify-between items-center ${textSecondary} text-xs`}>
-                                <span>{jar.currency || '$'}{jar.saved.toLocaleString()}</span>
+                              <div className={`flex justify-between items-center text-xs`}>
+                                <span className="text-green-600 font-semibold">{jar.currency || '$'}{jar.saved.toLocaleString()}</span>
                                 <span className="text-red-600 font-semibold">
                                   -{jar.currency || '$'}{Math.abs(jar.saved - jar.target).toLocaleString()}
                                 </span>
-                                <span>{jar.currency || '$'}{jar.target.toLocaleString()}</span>
+                                <span className={textSecondary}>{jar.currency || '$'}{jar.target.toLocaleString()}</span>
                               </div>
                             </div>
                           );
@@ -505,10 +498,10 @@ const Index = () => {
             <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
               <div className={`${darkMode ? 'bg-gray-700' : 'bg-blue-50'} rounded-xl sm:rounded-2xl p-3 sm:p-4`}>
                 <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
-                  <TrendingUp className="text-blue-500" size={16} />
+                  <TrendingUp className="text-green-600" size={16} />
                   <span className={`text-xs sm:text-sm ${textSecondary}`}>Saved</span>
                 </div>
-                <p className={`text-base sm:text-xl md:text-2xl font-bold ${textColor} break-words`}>{selectedJar.currency || '$'}{selectedJar.saved.toLocaleString()}</p>
+                <p className={`text-base sm:text-xl md:text-2xl font-bold text-green-600 break-words`}>{selectedJar.currency || '$'}{selectedJar.saved.toLocaleString()}</p>
               </div>
               <div className={`${darkMode ? 'bg-gray-700' : 'bg-purple-50'} rounded-xl sm:rounded-2xl p-3 sm:p-4`}>
                 <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
@@ -555,15 +548,6 @@ const Index = () => {
               </SavingsButton>
               <SavingsButton onClick={() => setShowRecordsModal(true)} variant="secondary" size="default" className="text-sm sm:text-base whitespace-nowrap">
                 📊 Records
-              </SavingsButton>
-              <SavingsButton 
-                onClick={() => exportJarReport(selectedJar)} 
-                variant="secondary" 
-                size="default" 
-                className="col-span-2 text-sm sm:text-base whitespace-nowrap"
-              >
-                <FileText size={16} className="inline mr-1" />
-                Export PDF
               </SavingsButton>
             </div>
 
@@ -680,7 +664,7 @@ const Index = () => {
                   >
                     {categories.map(cat => (
                       <option key={cat.id} value={cat.id}>
-                        {cat.icon} {cat.name}
+                        {cat.name}
                       </option>
                     ))}
                   </select>
