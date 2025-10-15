@@ -316,11 +316,11 @@ const Index = () => {
                   <span className="text-xl sm:text-2xl md:text-3xl">📝</span>
                   <h2 className={`text-lg sm:text-xl md:text-2xl font-bold ${textColor}`}>Notes</h2>
                 </div>
-                <div className="flex gap-2 sm:gap-3 w-full sm:w-auto justify-between sm:justify-end">
-                  <SavingsButton onClick={() => setShowCalculator(true)} variant="secondary" size="default" className="text-sm sm:text-base w-auto whitespace-nowrap flex-1 sm:flex-none">
+                <div className="flex gap-2 sm:gap-3">
+                  <SavingsButton onClick={() => setShowCalculator(true)} variant="secondary" size="default" className="text-sm sm:text-base w-auto whitespace-nowrap">
                     📊 Calculator
                   </SavingsButton>
-                  <SavingsButton onClick={() => setShowNoteModal(true)} size="default" className="text-sm sm:text-base w-auto whitespace-nowrap flex-1 sm:flex-none">
+                  <SavingsButton onClick={() => setShowNoteModal(true)} size="default" className="text-sm sm:text-base w-auto whitespace-nowrap">
                     Add Note
                   </SavingsButton>
                 </div>
