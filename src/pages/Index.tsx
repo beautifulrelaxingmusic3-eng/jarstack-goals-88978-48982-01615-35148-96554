@@ -647,7 +647,7 @@ const Index = () => {
       </div>
 
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-[3px] flex items-center justify-center p-4 z-40">
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-[2px] flex items-center justify-center p-4 z-40">
           <div className={`${cardBg} rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl`}>
             <h3 className={`text-xl sm:text-2xl font-bold mb-6 ${textColor}`}>Create New Jar</h3>
             {categories.length === 0 ? (
@@ -742,7 +742,7 @@ const Index = () => {
       )}
 
       {showNoteModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-[3px] flex items-center justify-center p-4 z-40">
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-[2px] flex items-center justify-center p-4 z-40">
           <div className={`${cardBg} rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl`}>
             <h3 className={`text-xl sm:text-2xl font-bold mb-6 ${textColor}`}>Add Note</h3>
             <textarea
@@ -790,7 +790,7 @@ const Index = () => {
       )}
 
       {showJarNoteModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-[3px] flex items-center justify-center p-4 z-40">
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-[2px] flex items-center justify-center p-4 z-40">
           <div className={`${cardBg} rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl`}>
             <h3 className={`text-xl sm:text-2xl font-bold mb-6 ${textColor}`}>Add Sticky Note</h3>
             <textarea
@@ -838,7 +838,7 @@ const Index = () => {
       )}
 
       {showRecordsModal && selectedJar && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-[3px] flex items-center justify-center p-4 z-40">
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-[2px] flex items-center justify-center p-4 z-40">
           <div className={`${cardBg} rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl max-h-[80vh] overflow-y-auto`}>
             <h3 className={`text-xl sm:text-2xl font-bold mb-6 ${textColor}`}>Transaction Records - {selectedJar.name}</h3>
             {selectedJar.records && selectedJar.records.length > 0 ? (
@@ -892,7 +892,7 @@ const Index = () => {
       )}
 
       {showDeleteConfirm && jarToDelete && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-[3px] flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-[2px] flex items-center justify-center p-4 z-50">
           <div className={`${cardBg} rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl`}>
             <h3 className={`text-xl sm:text-2xl font-bold mb-4 ${textColor}`}>Delete Jar?</h3>
             <p className={`mb-6 ${textSecondary}`}>
@@ -918,7 +918,7 @@ const Index = () => {
       )}
 
       {showCategoryModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-[3px] flex items-center justify-center p-4 z-40">
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-[2px] flex items-center justify-center p-4 z-40">
           <div className={`${cardBg} rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl`}>
             <h3 className={`text-xl sm:text-2xl font-bold mb-6 ${textColor}`}>Create New Category</h3>
             <input
@@ -943,7 +943,7 @@ const Index = () => {
       )}
 
       {showCalculator && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-[3px] flex items-center justify-center p-4 z-40">
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-[2px] flex items-center justify-center p-4 z-40">
           <div className={`${cardBg} rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl`}>
             <h3 className={`text-xl sm:text-2xl font-bold mb-6 ${textColor} flex items-center gap-2`}>
               📊 Savings Calculator
