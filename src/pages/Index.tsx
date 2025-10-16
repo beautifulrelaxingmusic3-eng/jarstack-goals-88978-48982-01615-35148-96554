@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Target, TrendingUp, Moon, Sun, Trash2 } from 'lucide-react';
 import SavingsButton from '@/components/SavingsButton';
 import JarVisualization from '@/components/JarVisualization';
 import SavingsChart from '@/components/SavingsChart';
 import EmotionalInsights from '@/components/EmotionalInsights';
+import { toast } from '@/hooks/use-toast';
 
 interface Jar {
   id: number;
@@ -67,6 +68,39 @@ const Index = () => {
   const [calcTargetAmount, setCalcTargetAmount] = useState('');
   const [calcTargetDate, setCalcTargetDate] = useState('');
   const [dailySavings, setDailySavings] = useState<number | null>(null);
+
+  // Weekly notification system
+  useEffect(() => {
+    const checkAndSendNotifications = () => {
+      const lastNotificationDate = localStorage.getItem('lastNotificationDate');
+      const today = new Date().toDateString();
+      
+      if (lastNotificationDate !== today && jars.length > 0) {
+        const dayOfWeek = new Date().getDay();
+        // Send notification every Monday (1) or when opening app after a week
+        if (dayOfWeek === 1 || !lastNotificationDate) {
+          jars.forEach(jar => {
+            const remaining = jar.target - jar.saved;
+            const percentSaved = ((jar.saved / jar.target) * 100).toFixed(1);
+            
+            toast({
+              title: `💰 ${jar.name} Update`,
+              description: `Saved: ${jar.currency}${jar.saved.toLocaleString()} (${percentSaved}%) | Remaining: ${jar.currency}${remaining.toLocaleString()}`,
+              duration: 6000,
+            });
+          });
+          
+          localStorage.setItem('lastNotificationDate', today);
+        }
+      }
+    };
+
+    // Check on mount and set up interval
+    checkAndSendNotifications();
+    const interval = setInterval(checkAndSendNotifications, 1000 * 60 * 60); // Check hourly
+    
+    return () => clearInterval(interval);
+  }, [jars]);
 
   const noteColors: Record<string, { bg: string; border: string }> = {
     yellow: { bg: '#FEFF9C', border: '#E5E67A' },
@@ -613,7 +647,7 @@ const Index = () => {
       </div>
 
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-40">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-[12px] flex items-center justify-center p-4 z-40">
           <div className={`${cardBg} rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl`}>
             <h3 className={`text-xl sm:text-2xl font-bold mb-6 ${textColor}`}>Create New Jar</h3>
             {categories.length === 0 ? (
@@ -708,7 +742,7 @@ const Index = () => {
       )}
 
       {showNoteModal && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-40">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-[12px] flex items-center justify-center p-4 z-40">
           <div className={`${cardBg} rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl`}>
             <h3 className={`text-xl sm:text-2xl font-bold mb-6 ${textColor}`}>Add Note</h3>
             <textarea
@@ -756,7 +790,7 @@ const Index = () => {
       )}
 
       {showJarNoteModal && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-40">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-[12px] flex items-center justify-center p-4 z-40">
           <div className={`${cardBg} rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl`}>
             <h3 className={`text-xl sm:text-2xl font-bold mb-6 ${textColor}`}>Add Sticky Note</h3>
             <textarea
@@ -804,7 +838,7 @@ const Index = () => {
       )}
 
       {showRecordsModal && selectedJar && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-40">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-[12px] flex items-center justify-center p-4 z-40">
           <div className={`${cardBg} rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl max-h-[80vh] overflow-y-auto`}>
             <h3 className={`text-xl sm:text-2xl font-bold mb-6 ${textColor}`}>Transaction Records - {selectedJar.name}</h3>
             {selectedJar.records && selectedJar.records.length > 0 ? (
@@ -858,7 +892,7 @@ const Index = () => {
       )}
 
       {showDeleteConfirm && jarToDelete && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-[12px] flex items-center justify-center p-4 z-50">
           <div className={`${cardBg} rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl`}>
             <h3 className={`text-xl sm:text-2xl font-bold mb-4 ${textColor}`}>Delete Jar?</h3>
             <p className={`mb-6 ${textSecondary}`}>
@@ -884,7 +918,7 @@ const Index = () => {
       )}
 
       {showCategoryModal && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-40">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-[12px] flex items-center justify-center p-4 z-40">
           <div className={`${cardBg} rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl`}>
             <h3 className={`text-xl sm:text-2xl font-bold mb-6 ${textColor}`}>Create New Category</h3>
             <input
@@ -909,7 +943,7 @@ const Index = () => {
       )}
 
       {showCalculator && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-40">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-[12px] flex items-center justify-center p-4 z-40">
           <div className={`${cardBg} rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl`}>
             <h3 className={`text-xl sm:text-2xl font-bold mb-6 ${textColor} flex items-center gap-2`}>
               📊 Savings Calculator
