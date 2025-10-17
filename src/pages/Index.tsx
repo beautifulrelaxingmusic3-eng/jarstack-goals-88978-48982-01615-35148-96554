@@ -5,6 +5,7 @@ import JarVisualization from '@/components/JarVisualization';
 import SavingsChart from '@/components/SavingsChart';
 import EmotionalInsights from '@/components/EmotionalInsights';
 import { toast } from '@/hooks/use-toast';
+import { Preferences } from '@capacitor/preferences';
 
 interface Jar {
   id: number;
@@ -69,10 +70,69 @@ const Index = () => {
   const [calcTargetDate, setCalcTargetDate] = useState('');
   const [dailySavings, setDailySavings] = useState<number | null>(null);
 
+  // Load data from Capacitor Preferences on mount
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const { value: jarsData } = await Preferences.get({ key: 'jars' });
+        const { value: categoriesData } = await Preferences.get({ key: 'categories' });
+        const { value: notesData } = await Preferences.get({ key: 'notes' });
+        const { value: darkModeData } = await Preferences.get({ key: 'darkMode' });
+
+        if (jarsData) {
+          const parsedJars = JSON.parse(jarsData);
+          // Convert date strings back to Date objects for records
+          parsedJars.forEach((jar: Jar) => {
+            if (jar.records) {
+              jar.records = jar.records.map(record => ({
+                ...record,
+                date: new Date(record.date)
+              }));
+            }
+          });
+          setJars(parsedJars);
+        }
+        if (categoriesData) setCategories(JSON.parse(categoriesData));
+        if (notesData) setNotes(JSON.parse(notesData));
+        if (darkModeData) setDarkMode(JSON.parse(darkModeData));
+      } catch (error) {
+        console.error('Error loading data from storage:', error);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  // Save jars to storage whenever they change
+  useEffect(() => {
+    if (jars.length >= 0) {
+      Preferences.set({ key: 'jars', value: JSON.stringify(jars) });
+    }
+  }, [jars]);
+
+  // Save categories to storage whenever they change
+  useEffect(() => {
+    if (categories.length >= 0) {
+      Preferences.set({ key: 'categories', value: JSON.stringify(categories) });
+    }
+  }, [categories]);
+
+  // Save notes to storage whenever they change
+  useEffect(() => {
+    if (notes.length >= 0) {
+      Preferences.set({ key: 'notes', value: JSON.stringify(notes) });
+    }
+  }, [notes]);
+
+  // Save dark mode to storage whenever it changes
+  useEffect(() => {
+    Preferences.set({ key: 'darkMode', value: JSON.stringify(darkMode) });
+  }, [darkMode]);
+
   // Weekly notification system
   useEffect(() => {
-    const checkAndSendNotifications = () => {
-      const lastNotificationDate = localStorage.getItem('lastNotificationDate');
+    const checkAndSendNotifications = async () => {
+      const { value: lastNotificationDate } = await Preferences.get({ key: 'lastNotificationDate' });
       const today = new Date().toDateString();
       
       if (lastNotificationDate !== today && jars.length > 0) {
@@ -90,7 +150,7 @@ const Index = () => {
             });
           });
           
-          localStorage.setItem('lastNotificationDate', today);
+          await Preferences.set({ key: 'lastNotificationDate', value: today });
         }
       }
     };
