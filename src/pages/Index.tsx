@@ -6,6 +6,7 @@ import SavingsChart from '@/components/SavingsChart';
 import EmotionalInsights from '@/components/EmotionalInsights';
 import { toast } from '@/hooks/use-toast';
 import { Preferences } from '@capacitor/preferences';
+import { LocalNotifications } from '@capacitor/local-notifications';
 
 interface Jar {
   id: number;
@@ -69,6 +70,59 @@ const Index = () => {
   const [calcTargetAmount, setCalcTargetAmount] = useState('');
   const [calcTargetDate, setCalcTargetDate] = useState('');
   const [dailySavings, setDailySavings] = useState<number | null>(null);
+
+  // Request notification permission and schedule notifications on first launch
+  useEffect(() => {
+    const setupNotifications = async () => {
+      try {
+        const { value: hasAskedPermission } = await Preferences.get({ key: 'notificationPermissionAsked' });
+        
+        if (!hasAskedPermission) {
+          const permission = await LocalNotifications.requestPermissions();
+          await Preferences.set({ key: 'notificationPermissionAsked', value: 'true' });
+          
+          if (permission.display === 'granted') {
+            // Schedule 3 weekly notifications (Monday, Wednesday, Friday at 10 AM)
+            await LocalNotifications.schedule({
+              notifications: [
+                {
+                  id: 1,
+                  title: 'Savings Reminder 💰',
+                  body: 'Don\'t forget to track your savings today!',
+                  schedule: {
+                    on: { weekday: 2, hour: 10, minute: 0 }, // Monday
+                    allowWhileIdle: true
+                  }
+                },
+                {
+                  id: 2,
+                  title: 'Savings Reminder 💰',
+                  body: 'Keep up with your savings goals!',
+                  schedule: {
+                    on: { weekday: 4, hour: 10, minute: 0 }, // Wednesday
+                    allowWhileIdle: true
+                  }
+                },
+                {
+                  id: 3,
+                  title: 'Savings Reminder 💰',
+                  body: 'Check your progress and stay motivated!',
+                  schedule: {
+                    on: { weekday: 6, hour: 10, minute: 0 }, // Friday
+                    allowWhileIdle: true
+                  }
+                }
+              ]
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error setting up notifications:', error);
+      }
+    };
+
+    setupNotifications();
+  }, []);
 
   // Load data from Capacitor Preferences on mount
   useEffect(() => {
