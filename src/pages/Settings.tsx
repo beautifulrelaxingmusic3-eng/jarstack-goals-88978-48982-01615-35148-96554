@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { Preferences } from '@capacitor/preferences';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -18,43 +18,20 @@ const Settings = () => {
   const [saving, setSaving] = useState(false);
   const [notificationDays, setNotificationDays] = useState<string[]>(['Monday', 'Wednesday', 'Friday']);
   const [notificationTime, setNotificationTime] = useState('10:00');
-  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    checkUser();
+    loadSettings();
   }, []);
 
-  const checkUser = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      navigate('/auth');
-      return;
-    }
-    
-    setUserId(session.user.id);
-    await loadSettings(session.user.id);
-  };
-
-  const loadSettings = async (uid: string) => {
+  const loadSettings = async () => {
     try {
-      const { data, error } = await supabase
-        .from('user_settings')
-        .select('*')
-        .eq('user_id', uid)
-        .single();
+      const { value: daysData } = await Preferences.get({ key: 'notificationDays' });
+      const { value: timeData } = await Preferences.get({ key: 'notificationTime' });
 
-      if (error && error.code !== 'PGRST116') throw error;
-
-      if (data) {
-        setNotificationDays(data.notification_days);
-        setNotificationTime(data.notification_time);
-      }
+      if (daysData) setNotificationDays(JSON.parse(daysData));
+      if (timeData) setNotificationTime(timeData);
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      });
+      console.error('Error loading settings:', error);
     } finally {
       setLoading(false);
     }
@@ -90,7 +67,6 @@ const Settings = () => {
   };
 
   const handleSave = async () => {
-    if (!userId) return;
     if (notificationDays.length === 0) {
       toast({
         variant: "destructive",
@@ -102,15 +78,8 @@ const Settings = () => {
 
     setSaving(true);
     try {
-      const { error } = await supabase
-        .from('user_settings')
-        .upsert({
-          user_id: userId,
-          notification_days: notificationDays,
-          notification_time: notificationTime,
-        });
-
-      if (error) throw error;
+      await Preferences.set({ key: 'notificationDays', value: JSON.stringify(notificationDays) });
+      await Preferences.set({ key: 'notificationTime', value: notificationTime });
 
       await scheduleNotifications();
 
