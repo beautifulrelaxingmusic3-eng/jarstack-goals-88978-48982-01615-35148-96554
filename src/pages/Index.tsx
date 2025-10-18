@@ -1,12 +1,17 @@
 import { useState, useEffect } from 'react';
-import { Plus, Target, TrendingUp, Moon, Sun, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Target, TrendingUp, Moon, Sun, Trash2, Settings, LogOut, Share2 } from 'lucide-react';
 import SavingsButton from '@/components/SavingsButton';
 import JarVisualization from '@/components/JarVisualization';
 import SavingsChart from '@/components/SavingsChart';
 import EmotionalInsights from '@/components/EmotionalInsights';
+import InviteModal from '@/components/InviteModal';
+import InvitationsPanel from '@/components/InvitationsPanel';
 import { toast } from '@/hooks/use-toast';
 import { Preferences } from '@capacitor/preferences';
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
 
 interface Jar {
   id: number;
@@ -47,6 +52,9 @@ interface TransactionRecord {
 }
 
 const Index = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState<any>(null);
+  const [session, setSession] = useState<any>(null);
   const [jars, setJars] = useState<Jar[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -70,6 +78,43 @@ const Index = () => {
   const [calcTargetAmount, setCalcTargetAmount] = useState('');
   const [calcTargetDate, setCalcTargetDate] = useState('');
   const [dailySavings, setDailySavings] = useState<number | null>(null);
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [selectedInviteJar, setSelectedInviteJar] = useState<{ id: string; name: string } | null>(null);
+
+  // Check authentication
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Redirect to auth if not logged in
+  useEffect(() => {
+    if (user === null && session === null) {
+      const timer = setTimeout(() => {
+        navigate('/auth');
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [user, session, navigate]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/auth');
+  };
+
+  const handleInviteJar = (jarId: number, jarName: string) => {
+    setSelectedInviteJar({ id: String(jarId), name: jarName });
+    setShowInviteModal(true);
+  };
 
   // Request notification permission and schedule notifications on first launch
   useEffect(() => {
@@ -424,12 +469,48 @@ const Index = () => {
             <h1 className={`text-2xl sm:text-3xl md:text-4xl font-bold ${textColor} tracking-tight`}>
               Jarify
             </h1>
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className={`p-2 sm:p-3 rounded-full ${darkMode ? 'bg-gray-800/80' : 'bg-white/80'} backdrop-blur-sm shadow-lg hover:shadow-xl transition-all border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}
-            >
-              {darkMode ? <Sun className="text-yellow-400" size={20} /> : <Moon className="text-indigo-600" size={20} />}
-            </button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/settings')}
+                className="hidden sm:flex"
+              >
+                <Settings className="h-4 w-4 mr-1" />
+                Settings
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/settings')}
+                className="sm:hidden"
+              >
+                <Settings className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="hidden sm:flex"
+              >
+                <LogOut className="h-4 w-4 mr-1" />
+                Logout
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleLogout}
+                className="sm:hidden"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
+              <button
+                onClick={() => setDarkMode(!darkMode)}
+                className={`p-2 sm:p-3 rounded-full ${darkMode ? 'bg-gray-800/80' : 'bg-white/80'} backdrop-blur-sm shadow-lg hover:shadow-xl transition-all border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}
+              >
+                {darkMode ? <Sun className="text-yellow-400" size={20} /> : <Moon className="text-indigo-600" size={20} />}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -447,6 +528,8 @@ const Index = () => {
                   darkMode={darkMode}
                   currency={jars.length > 0 ? jars[jars.length - 1].currency : '$'}
                 />
+
+                <InvitationsPanel />
 
                 <div className={`${cardBg} rounded-3xl p-4 sm:p-6 shadow-lg`}>
                   <div className="flex items-center gap-3 mb-4">
@@ -555,16 +638,27 @@ const Index = () => {
                               onClick={() => setSelectedJar(jar)}
                               className={`${cardBg} rounded-2xl p-3 sm:p-4 shadow-lg cursor-pointer transform hover:scale-105 transition-all duration-300 relative group min-w-[200px] max-w-[200px] flex-shrink-0`}
                             >
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setJarToDelete(jar);
-                                  setShowDeleteConfirm(true);
-                                }}
-                                className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 z-10"
-                              >
-                                <Trash2 size={14} />
-                              </button>
+                              <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleInviteJar(jar.id, jar.name);
+                                  }}
+                                  className="bg-blue-500 text-white p-1.5 rounded-full hover:bg-blue-600"
+                                >
+                                  <Share2 size={14} />
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setJarToDelete(jar);
+                                    setShowDeleteConfirm(true);
+                                  }}
+                                  className="bg-red-500 text-white p-1.5 rounded-full hover:bg-red-600"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
                               <h4 className={`text-sm sm:text-base font-bold ${textColor} mb-2`}>{jar.name}</h4>
                               <div className="relative h-24 sm:h-32 mb-2 flex items-center justify-center">
                                 <JarVisualization progress={progress} jarId={jar.id} isLarge={false} />
@@ -1129,6 +1223,18 @@ const Index = () => {
             </SavingsButton>
           </div>
         </div>
+      )}
+
+      {showInviteModal && selectedInviteJar && (
+        <InviteModal
+          isOpen={showInviteModal}
+          onClose={() => {
+            setShowInviteModal(false);
+            setSelectedInviteJar(null);
+          }}
+          jarId={selectedInviteJar.id}
+          jarName={selectedInviteJar.name}
+        />
       )}
     </div>
   );
