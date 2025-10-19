@@ -1,14 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Plus, Target, TrendingUp, Moon, Sun, Trash2, Settings } from 'lucide-react';
+import { Plus, Target, TrendingUp, Moon, Sun, Trash2 } from 'lucide-react';
 import SavingsButton from '@/components/SavingsButton';
 import JarVisualization from '@/components/JarVisualization';
 import SavingsChart from '@/components/SavingsChart';
 import EmotionalInsights from '@/components/EmotionalInsights';
 import { toast } from '@/hooks/use-toast';
 import { Preferences } from '@capacitor/preferences';
-import { LocalNotifications } from '@capacitor/local-notifications';
-import { Button } from '@/components/ui/button';
 
 interface Jar {
   id: number;
@@ -49,7 +46,6 @@ interface TransactionRecord {
 }
 
 const Index = () => {
-  const navigate = useNavigate();
   const [jars, setJars] = useState<Jar[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -73,59 +69,6 @@ const Index = () => {
   const [calcTargetAmount, setCalcTargetAmount] = useState('');
   const [calcTargetDate, setCalcTargetDate] = useState('');
   const [dailySavings, setDailySavings] = useState<number | null>(null);
-
-  // Request notification permission and schedule notifications on first launch
-  useEffect(() => {
-    const setupNotifications = async () => {
-      try {
-        const { value: hasAskedPermission } = await Preferences.get({ key: 'notificationPermissionAsked' });
-        
-        if (!hasAskedPermission) {
-          const permission = await LocalNotifications.requestPermissions();
-          await Preferences.set({ key: 'notificationPermissionAsked', value: 'true' });
-          
-          if (permission.display === 'granted') {
-            // Schedule 3 weekly notifications (Monday, Wednesday, Friday at 10 AM)
-            await LocalNotifications.schedule({
-              notifications: [
-                {
-                  id: 1,
-                  title: 'Savings Reminder 💰',
-                  body: 'Don\'t forget to track your savings today!',
-                  schedule: {
-                    on: { weekday: 2, hour: 10, minute: 0 }, // Monday
-                    allowWhileIdle: true
-                  }
-                },
-                {
-                  id: 2,
-                  title: 'Savings Reminder 💰',
-                  body: 'Keep up with your savings goals!',
-                  schedule: {
-                    on: { weekday: 4, hour: 10, minute: 0 }, // Wednesday
-                    allowWhileIdle: true
-                  }
-                },
-                {
-                  id: 3,
-                  title: 'Savings Reminder 💰',
-                  body: 'Check your progress and stay motivated!',
-                  schedule: {
-                    on: { weekday: 6, hour: 10, minute: 0 }, // Friday
-                    allowWhileIdle: true
-                  }
-                }
-              ]
-            });
-          }
-        }
-      } catch (error) {
-        console.error('Error setting up notifications:', error);
-      }
-    };
-
-    setupNotifications();
-  }, []);
 
   // Load data from Capacitor Preferences on mount
   useEffect(() => {
@@ -427,31 +370,12 @@ const Index = () => {
             <h1 className={`text-2xl sm:text-3xl md:text-4xl font-bold ${textColor} tracking-tight`}>
               Jarify
             </h1>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate('/settings')}
-                className="hidden sm:flex"
-              >
-                <Settings className="h-4 w-4 mr-1" />
-                Settings
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate('/settings')}
-                className="sm:hidden"
-              >
-                <Settings className="h-4 w-4" />
-              </Button>
-              <button
-                onClick={() => setDarkMode(!darkMode)}
-                className={`p-2 sm:p-3 rounded-full ${darkMode ? 'bg-gray-800/80' : 'bg-white/80'} backdrop-blur-sm shadow-lg hover:shadow-xl transition-all border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}
-              >
-                {darkMode ? <Sun className="text-yellow-400" size={20} /> : <Moon className="text-indigo-600" size={20} />}
-              </button>
-            </div>
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className={`p-2 sm:p-3 rounded-full ${darkMode ? 'bg-gray-800/80' : 'bg-white/80'} backdrop-blur-sm shadow-lg hover:shadow-xl transition-all border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}
+            >
+              {darkMode ? <Sun className="text-yellow-400" size={20} /> : <Moon className="text-indigo-600" size={20} />}
+            </button>
           </div>
         </div>
       </div>
@@ -577,18 +501,16 @@ const Index = () => {
                               onClick={() => setSelectedJar(jar)}
                               className={`${cardBg} rounded-2xl p-3 sm:p-4 shadow-lg cursor-pointer transform hover:scale-105 transition-all duration-300 relative group min-w-[200px] max-w-[200px] flex-shrink-0`}
                             >
-                              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setJarToDelete(jar);
-                                    setShowDeleteConfirm(true);
-                                  }}
-                                  className="bg-red-500 text-white p-1.5 rounded-full hover:bg-red-600"
-                                >
-                                  <Trash2 size={14} />
-                                </button>
-                              </div>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setJarToDelete(jar);
+                                  setShowDeleteConfirm(true);
+                                }}
+                                className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 z-10"
+                              >
+                                <Trash2 size={14} />
+                              </button>
                               <h4 className={`text-sm sm:text-base font-bold ${textColor} mb-2`}>{jar.name}</h4>
                               <div className="relative h-24 sm:h-32 mb-2 flex items-center justify-center">
                                 <JarVisualization progress={progress} jarId={jar.id} isLarge={false} />
@@ -1154,7 +1076,6 @@ const Index = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };
